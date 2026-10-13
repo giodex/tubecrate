@@ -2,12 +2,12 @@
 import PackageDescription
 
 let package = Package(
-    name: "Cratebar",
+    name: "Tubecrate",
     platforms: [.macOS(.v14)],
     targets: [
         .executableTarget(
-            name: "Cratebar",
-            path: "Sources/Cratebar",
+            name: "Tubecrate",
+            path: "Sources/Tubecrate",
             swiftSettings: [
                 .swiftLanguageMode(.v5)
             ]

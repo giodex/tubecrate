@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 #
-# Build, sign (Developer ID), notarize, and staple Cratebar.app, then produce a
+# Build, sign (Developer ID), notarize, and staple Tubecrate.app, then produce a
 # distributable zip ready for a GitHub release / Homebrew cask.
 #
 # Prerequisites (one-time):
 #   1. A "Developer ID Application" certificate installed in your login keychain.
 #      Create via Xcode → Settings → Accounts → Manage Certificates → + →
 #      "Developer ID Application".
-#   2. A stored notarytool credential profile named "cratebar":
-#        xcrun notarytool store-credentials cratebar \
-#          --apple-id "you@email.com" --team-id "P8FLGJ3757" \
+#   2. A stored notarytool credential profile named "tubecrate":
+#        xcrun notarytool store-credentials tubecrate \
+#          --apple-id "you@email.com" --team-id "YOURTEAMID" \
 #          --password "<app-specific-password>"
 #      (Generate an app-specific password at https://appleid.apple.com →
 #       Sign-In and Security → App-Specific Passwords. Or use an App Store
@@ -22,8 +22,8 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 source "Scripts/_notary.sh"
 
-TEAM_ID="${TEAM_ID:-P8FLGJ3757}"
-NOTARY_PROFILE="${NOTARY_PROFILE:-cratebar}"
+TEAM_ID="${TEAM_ID:?set TEAM_ID to your Apple Developer team ID}"
+NOTARY_PROFILE="${NOTARY_PROFILE:-tubecrate}"
 VERSION="${1:-1.0}"
 
 # Resolve the Developer ID Application identity from the keychain.
@@ -40,8 +40,8 @@ fi
 echo "▸ Building + signing…"
 SIGN_IDENTITY="${SIGN_IDENTITY}" ./Scripts/build-app.sh
 
-APP="build/Cratebar.app"
-ZIP="build/Cratebar-${VERSION}.zip"
+APP="build/Tubecrate.app"
+ZIP="build/Tubecrate-${VERSION}.zip"
 
 echo "▸ Zipping for notarization…"
 rm -f "${ZIP}"

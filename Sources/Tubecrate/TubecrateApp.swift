@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct CratebarApp: App {
+struct TubecrateApp: App {
     @StateObject private var state = AppState()
 
     init() {

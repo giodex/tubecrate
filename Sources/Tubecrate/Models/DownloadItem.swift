@@ -20,12 +20,12 @@ final class DownloadItem: ObservableObject, Identifiable {
     }
 
     let id = UUID()
-    let track: SCTrack
+    let track: Track
 
     @Published var status: Status = .queued
     @Published var progress: Double = 0   // 0...1, used during the download phase
 
-    init(track: SCTrack) {
+    init(track: Track) {
         self.track = track
     }
 

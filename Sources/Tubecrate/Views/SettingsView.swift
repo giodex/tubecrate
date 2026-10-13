@@ -3,7 +3,6 @@ import AppKit
 
 struct SettingsView: View {
     @EnvironmentObject var state: AppState
-    @State private var tokenInput = ""
 
     var body: some View {
         ScrollView {
@@ -11,8 +10,6 @@ struct SettingsView: View {
                 librarySection
                 Divider()
                 formatSection
-                Divider()
-                authSection
                 Divider()
                 toolsSection
             }
@@ -68,70 +65,11 @@ struct SettingsView: View {
             .labelsHidden()
             .pickerStyle(.radioGroup)
 
-            Text("SoundCloud streams cap quality at the source (often ~128 kbps). " +
+            Text("YouTube audio is lossy at the source (typically Opus ~160 kbps or AAC 128 kbps). " +
                  "Transcoding can't add detail that isn't there — AIFF gives Rekordbox a " +
                  "clean, lossless container with full metadata.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
-        }
-    }
-
-    // MARK: - Authentication (SoundCloud Go+)
-
-    private var authSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                sectionTitle("SoundCloud Go+ (optional)")
-                Spacer()
-                if state.hasAuthToken {
-                    Label("Connected", systemImage: "checkmark.seal.fill")
-                        .font(.caption.weight(.medium))
-                        .foregroundStyle(.green)
-                }
-            }
-            Text("Paste your account's OAuth token to unlock HQ (256 kbps AAC) streams on " +
-                 "tracks that don't offer an original download. Stored in your macOS Keychain.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-
-            HStack {
-                SecureField(state.hasAuthToken ? "•••••••• (saved)" : "oauth_token value", text: $tokenInput)
-                    .textFieldStyle(.roundedBorder)
-                    .font(.system(size: 11, design: .monospaced))
-                Button("Save") {
-                    state.saveAuthToken(tokenInput)
-                    tokenInput = ""
-                }
-                .disabled(tokenInput.trimmingCharacters(in: .whitespaces).isEmpty)
-                if state.hasAuthToken {
-                    Button("Remove") {
-                        state.clearAuthToken()
-                        tokenInput = ""
-                    }
-                }
-            }
-
-            DisclosureGroup("How do I get my token?") {
-                VStack(alignment: .leading, spacing: 4) {
-                    instructionRow(1, "Log into soundcloud.com in your browser with your Go+ account.")
-                    instructionRow(2, "Open DevTools (⌥⌘I) → Application → Storage → Cookies → soundcloud.com.")
-                    instructionRow(3, "Copy the value of the **oauth_token** cookie.")
-                    instructionRow(4, "Paste it above and click Save.")
-                    Text("Without Go+, Cratebar still grabs the best free stream (or the original file when an artist enables downloads).")
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                        .padding(.top, 2)
-                }
-                .padding(.top, 4)
-            }
-            .font(.caption)
-        }
-    }
-
-    private func instructionRow(_ n: Int, _ text: String) -> some View {
-        HStack(alignment: .top, spacing: 6) {
-            Text("\(n).").font(.caption.monospacedDigit()).foregroundStyle(.secondary)
-            Text(.init(text)).font(.caption).foregroundStyle(.secondary)
         }
     }
 

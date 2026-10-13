@@ -47,19 +47,19 @@ struct AppSettings: Codable {
     static var defaultDirectory: String {
         let music = FileManager.default.urls(for: .musicDirectory, in: .userDomainMask).first
         let base = music ?? URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("Music")
-        return base.appendingPathComponent("Cratebar").path
+        return base.appendingPathComponent("Tubecrate").path
     }
 
     static let `default` = AppSettings(
         downloadDirectory: defaultDirectory,
         format: .aiff,
         organizeByArtist: false,
-        albumTag: "SoundCloud"
+        albumTag: "YouTube"
     )
 
     // MARK: - Persistence (UserDefaults JSON blob)
 
-    private static let key = "cratebar.settings.v1"
+    private static let key = "tubecrate.settings.v1"
 
     static func load() -> AppSettings {
         guard let data = UserDefaults.standard.data(forKey: key),

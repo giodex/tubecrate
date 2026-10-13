@@ -21,7 +21,7 @@ struct SearchView: View {
         HStack(spacing: 6) {
             Image(systemName: "magnifyingglass")
                 .foregroundStyle(.secondary)
-            TextField("Search SoundCloud…", text: $state.query)
+            TextField("Search YouTube…", text: $state.query)
                 .textFieldStyle(.plain)
                 .onSubmit { Task { await state.search() } }
             if state.isSearching {
@@ -71,7 +71,7 @@ struct SearchView: View {
                 .foregroundStyle(.secondary)
             Text("Setup required")
                 .font(.headline)
-            Text("Cratebar needs **yt-dlp** and **ffmpeg** to download and convert audio.")
+            Text("Tubecrate needs **yt-dlp** and **ffmpeg** to download and convert audio.")
                 .multilineTextAlignment(.center)
                 .font(.callout)
                 .foregroundStyle(.secondary)
@@ -103,7 +103,7 @@ struct SearchView: View {
 
 struct TrackRow: View {
     @EnvironmentObject var state: AppState
-    let track: SCTrack
+    let track: Track
 
     var body: some View {
         HStack(spacing: 10) {
@@ -135,7 +135,7 @@ struct TrackRow: View {
     }
 
     private var artwork: some View {
-        AsyncImage(url: track.hiResArtworkURL) { phase in
+        AsyncImage(url: track.artworkURL) { phase in
             switch phase {
             case .success(let image):
                 image.resizable().aspectRatio(contentMode: .fill)
@@ -144,7 +144,7 @@ struct TrackRow: View {
                     .overlay(Image(systemName: "music.note").foregroundStyle(.secondary))
             }
         }
-        .frame(width: 40, height: 40)
+        .frame(width: 53, height: 30)
         .clipShape(RoundedRectangle(cornerRadius: 5))
     }
 }

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Build a signed + notarized + stapled drag-to-Applications .dmg from a
-# notarized Cratebar.app. Run Scripts/notarize.sh first so build/Cratebar.app
+# notarized Tubecrate.app. Run Scripts/notarize.sh first so build/Tubecrate.app
 # is signed, notarized, and stapled.
 #
 # Usage:
@@ -12,11 +12,11 @@ cd "$(dirname "$0")/.."
 source "Scripts/_notary.sh"
 
 VERSION="${1:-1.0}"
-TEAM_ID="${TEAM_ID:-P8FLGJ3757}"
-NOTARY_PROFILE="${NOTARY_PROFILE:-cratebar}"
-APP="build/Cratebar.app"
-DMG="build/Cratebar-${VERSION}.dmg"
-STAGE="$(mktemp -d)/Cratebar"
+TEAM_ID="${TEAM_ID:?set TEAM_ID to your Apple Developer team ID}"
+NOTARY_PROFILE="${NOTARY_PROFILE:-tubecrate}"
+APP="build/Tubecrate.app"
+DMG="build/Tubecrate-${VERSION}.dmg"
+STAGE="$(mktemp -d)/Tubecrate"
 
 [[ -d "$APP" ]] || { echo "✗ $APP not found — run Scripts/notarize.sh first." >&2; exit 1; }
 
@@ -31,7 +31,7 @@ ln -s /Applications "$STAGE/Applications"
 
 echo "▸ Creating compressed .dmg…"
 rm -f "$DMG"
-hdiutil create -volname "Cratebar" -srcfolder "$STAGE" -ov -format UDZO "$DMG" >/dev/null
+hdiutil create -volname "Tubecrate" -srcfolder "$STAGE" -ov -format UDZO "$DMG" >/dev/null
 
 if [[ -n "${SIGN_IDENTITY}" ]]; then
   echo "▸ Signing .dmg (${SIGN_IDENTITY})…"

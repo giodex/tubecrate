@@ -22,8 +22,6 @@ enum DownloadError: LocalizedError {
 struct Downloader {
     let ytDlpPath: String
     let ffmpegPath: String
-    /// SoundCloud Go+ OAuth token, if the user supplied one. Unlocks HQ (256k AAC) streams.
-    var oauthToken: String? = nil
 
     func run(item: DownloadItem, settings: AppSettings) async {
         do {
@@ -41,36 +39,37 @@ struct Downloader {
 
         // Scratch directory for this single download.
         let work = fm.temporaryDirectory
-            .appendingPathComponent("cratebar-\(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("tubecrate-\(UUID().uuidString)", isDirectory: true)
         try fm.createDirectory(at: work, withIntermediateDirectories: true)
         defer { try? fm.removeItem(at: work) }
 
         // 1. Download best audio + cover art with yt-dlp.
         await MainActor.run { item.status = .downloading }
         let template = work.appendingPathComponent("audio.%(ext)s").path
-        var ytArgs = [
+        let ytArgs = [
             "--no-playlist",
             "--newline",
             "--no-warnings",
-            // Prefer the artist's original uploaded file (lossless / as-uploaded) when
-            // SoundCloud exposes it, then the highest-bitrate stream, then anything.
-            "-f", "download/bestaudio/best",
+            // Audio-only stream (usually Opus ~160 kbps or AAC 128 kbps on YouTube),
+            // falling back to a muxed video+audio format if no audio-only one exists.
+            "-f", "bestaudio/best",
             // Among streams, rank by higher audio bitrate then sample rate.
             "-S", "abr,asr,quality",
             "--write-thumbnail",
             "--convert-thumbnails", "jpg",
             "-o", template,
-            track.permalinkURL,
+            track.url,
         ]
-        // With a Go+ token, authenticate every request so SoundCloud returns HQ transcodings.
-        if let token = oauthToken?.trimmingCharacters(in: .whitespacesAndNewlines), !token.isEmpty {
-            ytArgs.insert(contentsOf: ["--add-header", "Authorization:OAuth \(token)"], at: 0)
-        }
 
-        let ytResult = try await ProcessRunner.run(ytDlpPath, ytArgs) { line in
-            if let pct = Self.parseProgress(line) {
-                Task { @MainActor in item.progress = pct }
+        // YouTube intermittently answers 403 on stream URLs; a fresh attempt usually works.
+        var ytResult = ProcessResult(exitCode: -1, output: "")
+        for _ in 1...3 {
+            ytResult = try await ProcessRunner.run(ytDlpPath, ytArgs) { line in
+                if let pct = Self.parseProgress(line) {
+                    Task { @MainActor in item.progress = pct }
+                }
             }
+            if ytResult.exitCode == 0 { break }
         }
         guard ytResult.exitCode == 0 else {
             throw DownloadError.ytDlpFailed(Self.tail(ytResult.output))
@@ -107,7 +106,7 @@ struct Downloader {
 
     private func transcode(
         audio: URL, cover: URL?, output: URL,
-        track: SCTrack, settings: AppSettings
+        track: Track, settings: AppSettings
     ) async throws {
         let metadata = Self.metadataArgs(track: track, album: settings.albumTag)
 
@@ -140,24 +139,21 @@ struct Downloader {
         }
     }
 
-    private static func metadataArgs(track: SCTrack, album: String) -> [String] {
-        var args = [
+    private static func metadataArgs(track: Track, album: String) -> [String] {
+        let args = [
             "-metadata", "title=\(track.title)",
             "-metadata", "artist=\(track.artist)",
             "-metadata", "album_artist=\(track.artist)",
             "-metadata", "album=\(album)",
-            "-metadata", "comment=\(track.permalinkURL)",
+            "-metadata", "comment=\(track.url)",
         ]
-        if let genre = track.genre, !genre.isEmpty {
-            args += ["-metadata", "genre=\(genre)"]
-        }
         return args
     }
 
     // MARK: - Library placement
 
     private func placeInLibrary(
-        file: URL, ext: String, track: SCTrack, settings: AppSettings
+        file: URL, ext: String, track: Track, settings: AppSettings
     ) throws -> URL {
         let fm = FileManager.default
         var dir = URL(fileURLWithPath: settings.downloadDirectory, isDirectory: true)

@@ -5,7 +5,7 @@ import SwiftUI
 final class AppState: ObservableObject {
     // Search
     @Published var query = ""
-    @Published var results: [SCTrack] = []
+    @Published var results: [Track] = []
     @Published var isSearching = false
     @Published var searchError: String?
 
@@ -20,21 +20,20 @@ final class AppState: ObservableObject {
     @Published var isInstallingTools = false
     @Published var installLog = ""
 
-    // SoundCloud Go+ authentication (token stored in Keychain)
-    @Published var hasAuthToken = Keychain.hasToken
-
-    private let client = SoundCloudClient()
-
     // MARK: - Search
 
     func search() async {
         let q = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !q.isEmpty else { return }
+        guard let ytDlp = tools.ytDlpPath else {
+            searchError = YTError.missingYtDlp.errorDescription
+            return
+        }
         isSearching = true
         searchError = nil
         defer { isSearching = false }
         do {
-            results = try await client.search(q)
+            results = try await YouTubeClient(ytDlpPath: ytDlp).search(q)
             if results.isEmpty { searchError = "No tracks found." }
         } catch {
             searchError = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
@@ -44,11 +43,11 @@ final class AppState: ObservableObject {
 
     // MARK: - Downloads
 
-    func download(_ track: SCTrack) {
+    func download(_ track: Track) {
         guard let ytDlp = tools.ytDlpPath, let ffmpeg = tools.ffmpegPath else { return }
         let item = DownloadItem(track: track)
         downloads.insert(item, at: 0)
-        let downloader = Downloader(ytDlpPath: ytDlp, ffmpegPath: ffmpeg, oauthToken: Keychain.get())
+        let downloader = Downloader(ytDlpPath: ytDlp, ffmpegPath: ffmpeg)
         let settingsSnapshot = settings
         Task.detached {
             await downloader.run(item: item, settings: settingsSnapshot)
@@ -72,18 +71,6 @@ final class AppState: ObservableObject {
         mutate(&copy)
         settings = copy
         copy.save()
-    }
-
-    // MARK: - Authentication
-
-    func saveAuthToken(_ token: String) {
-        Keychain.set(token.trimmingCharacters(in: .whitespacesAndNewlines))
-        hasAuthToken = Keychain.hasToken
-    }
-
-    func clearAuthToken() {
-        Keychain.set(nil)
-        hasAuthToken = false
     }
 
     func openDownloadFolder() {

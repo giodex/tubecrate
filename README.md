@@ -1,10 +1,10 @@
 <div align="center">
 
-# Cratebar
+# Tubecrate
 
-**Search SoundCloud and drop tracks straight into your DJ crate — from the macOS menu bar.**
+**Search YouTube and drop tracks straight into your DJ crate — from the macOS menu bar.**
 
-A native SwiftUI menu bar app that finds tracks on SoundCloud, downloads the
+A native SwiftUI menu bar app that finds tracks on YouTube, downloads the
 best available audio, transcodes to a Rekordbox-ready format, tags it with
 artwork, and files it into a folder you choose.
 
@@ -14,23 +14,26 @@ artwork, and files it into a folder you choose.
 
 </div>
 
+> Tubecrate is a fork of [**Cratebar**](https://github.com/JackTPatterson/cratebar)
+> by Jack Patterson, reworked to search and download from **YouTube** instead of
+> SoundCloud.
+
 ---
 
 ## Features
 
-- 🔎 **Search SoundCloud** right from the menu bar — no browser needed
-- ⬇️ **Best-quality downloads** via [`yt-dlp`](https://github.com/yt-dlp/yt-dlp): prefers the artist's original uploaded file, falls back to the highest-bitrate stream
+- 🔎 **Search YouTube** right from the menu bar — no browser, no API key
+- ⬇️ **Best-quality downloads** via [`yt-dlp`](https://github.com/yt-dlp/yt-dlp): grabs the highest-bitrate audio-only stream
 - 🎛️ **DJ-ready formats** via [`ffmpeg`](https://ffmpeg.org): **AIFF** (Rekordbox-native), WAV, MP3 320, or keep the original
 - 🏷️ **Full metadata** — embeds ID3 tags (title / artist / album / genre) **and cover art**
 - 📁 **Your folder, your rules** — pick a "record box" directory, optionally split into per-artist subfolders
-- 🔐 **SoundCloud Go+ support** (optional) — unlock 256 kbps AAC HQ streams; token stored in the macOS Keychain
+- 🏷️ **Clean tags** — "Artist - Title" video titles are split into proper artist/title fields
 - 🍺 **Zero-fuss setup** — installs `yt-dlp` + `ffmpeg` for you via Homebrew
 - 🪶 **Truly native & lightweight** — `MenuBarExtra`, no Dock icon, no Electron
 
-> **A note on audio quality.** SoundCloud streams are capped at the source
-> bitrate (commonly ~128 kbps, or the original file when the uploader enabled
-> downloads; up to 256 kbps AAC with Go+). Cratebar always grabs the best
-> available source — transcoding to AIFF gives you a clean, lossless *container*
+> **A note on audio quality.** YouTube audio is lossy at the source (typically
+> Opus ~160 kbps or AAC 128 kbps). Tubecrate always grabs the best available
+> stream — transcoding to AIFF gives you a clean, lossless *container*
 > with full metadata, but it can't manufacture detail the source doesn't contain.
 
 ---
@@ -41,7 +44,7 @@ artwork, and files it into a folder you choose.
 
 ```
 ┌─────────────────────────────────┐
-│ 🎵 Cratebar            ⚙︎  ⏻     │
+│ 🎵 Tubecrate            ⚙︎  ⏻     │
 ├─────────────────────────────────┤
 │ 🔎 daft punk                  ✕ │
 ├─────────────────────────────────┤
@@ -61,58 +64,44 @@ artwork, and files it into a folder you choose.
 
 - **macOS 14 (Sonoma) or later**
 - **Xcode / Swift 6 toolchain** to build (`xcode-select --install` provides the basics; full Xcode recommended)
-- **[`yt-dlp`](https://github.com/yt-dlp/yt-dlp)** and **[`ffmpeg`](https://ffmpeg.org)** — Cratebar can install these for you via [Homebrew](https://brew.sh) on first run
+- **[`yt-dlp`](https://github.com/yt-dlp/yt-dlp)** and **[`ffmpeg`](https://ffmpeg.org)** — Tubecrate can install these for you via [Homebrew](https://brew.sh) on first run
 
 ---
 
 ## Install
 
-The app is **signed with a Developer ID and notarized by Apple**, so it opens
-normally — no Gatekeeper warning.
-
 ### Direct download
 
-Grab `Cratebar-<version>.dmg` from the
-[latest release](https://github.com/JackTPatterson/cratebar/releases/latest),
-open it, and drag **Cratebar.app** to Applications. You'll also need `yt-dlp`
-and `ffmpeg` (`brew install yt-dlp ffmpeg`, or let Cratebar install them from
+Grab `Tubecrate-<version>.zip` from the
+[latest release](https://github.com/giodex/tubecrate/releases/latest),
+unzip it, and drag **Tubecrate.app** to Applications. You'll also need `yt-dlp`
+and `ffmpeg` (`brew install yt-dlp ffmpeg`, or let Tubecrate install them from
 Settings on first run).
 
-### Homebrew (recommended)
-
-```bash
-brew tap JackTPatterson/tap
-brew install --cask cratebar
-```
-
-This installs **Cratebar.app** into `/Applications` along with its dependencies
-(`yt-dlp`, `ffmpeg`). If Homebrew reports the tap is untrusted (third-party
-casks run install code), approve it with `brew trust jacktpatterson/tap` and
-re-run.
-
-Update / uninstall later with `brew upgrade --cask cratebar` /
-`brew uninstall --cask cratebar`.
+The release build is **ad-hoc signed** (not notarized), so on first launch
+right-click the app → **Open**, or run
+`xattr -dr com.apple.quarantine /Applications/Tubecrate.app`.
 
 ### Build from source
 
 ```bash
-git clone https://github.com/JackTPatterson/cratebar.git
-cd cratebar
+git clone https://github.com/giodex/tubecrate.git
+cd tubecrate
 
 # Build a proper menu-bar .app bundle
 ./Scripts/build-app.sh
 
 # Launch it
-open build/Cratebar.app
+open build/Tubecrate.app
 
 # (optional) move it into /Applications
-cp -R build/Cratebar.app /Applications/
+cp -R build/Tubecrate.app /Applications/
 ```
 
 Prefer to run straight from source while hacking on it:
 
 ```bash
-swift run Cratebar
+swift run Tubecrate
 ```
 
 A small **record-stack** icon appears in your menu bar. Click it to start.
@@ -123,39 +112,23 @@ A small **record-stack** icon appears in your menu bar. Click it to start.
 
 1. Click the menu bar icon → **gear** (Settings).
 2. If **yt-dlp** / **ffmpeg** show as missing, click **Install via Homebrew**.
-3. Choose your **record box folder** (defaults to `~/Music/Cratebar`).
+3. Choose your **record box folder** (defaults to `~/Music/Tubecrate`).
 4. Pick your **audio format** (defaults to AIFF).
-5. _(Optional)_ Under **SoundCloud Go+**, paste your `oauth_token` to unlock HQ
-   streams — see [below](#unlocking-hq-with-soundcloud-go).
-6. Back on the search screen, search a track and hit the **download arrow** ⬇.
+5. Back on the search screen, search a track and hit the **download arrow** ⬇.
 
 Then point Rekordbox at your record box folder (or drag the files in) and they
 import with artwork and tags intact.
-
-### Unlocking HQ with SoundCloud Go+
-
-Cratebar works fully without an account. If you have **SoundCloud Go+**, you can
-unlock 256 kbps AAC streams on tracks that don't offer an original download:
-
-1. Log into [soundcloud.com](https://soundcloud.com) in your browser (Go+ account).
-2. Open DevTools (`⌥⌘I`) → **Application** → **Storage** → **Cookies** → `soundcloud.com`.
-3. Copy the value of the **`oauth_token`** cookie.
-4. Paste it into **Settings → SoundCloud Go+** and click **Save**.
-
-The token is stored in your **macOS Keychain** and sent to `yt-dlp` as an
-`Authorization: OAuth <token>` header. Tokens rotate periodically — if HQ stops
-working, paste a fresh one.
 
 ---
 
 ## How it works
 
 ```
-Search   →  SoundCloud api-v2 /search/tracks
-            (client_id scraped from the site's JS, the same technique yt-dlp/scdl use)
+Search   →  yt-dlp "ytsearch30:<query>" --flat-playlist --dump-json
+            (metadata only — no API key, no per-video resolution)
 
-Download →  yt-dlp -f "download/bestaudio/best" -S abr,asr   (+ cover thumbnail)
-            └─ with a Go+ token: Authorization: OAuth <token>  → HQ transcodings
+Download →  yt-dlp -f "bestaudio/best" -S abr,asr   (+ cover thumbnail)
+            └─ retried up to 3× (YouTube intermittently returns 403)
 
 Convert  →  ffmpeg → AIFF / WAV / MP3, ID3v2 tags + attached cover art
             (cover embed has an audio-only fallback if a muxer rejects it)
@@ -169,26 +142,25 @@ Place    →  moved into your folder as "Artist - Title.aiff"
 ## Project layout
 
 ```
-Sources/Cratebar/
-  CratebarApp.swift         App entry — MenuBarExtra, accessory (no Dock icon)
-  AppState.swift            Observable app state (search, downloads, settings, auth)
+Sources/Tubecrate/
+  TubecrateApp.swift         App entry — MenuBarExtra, accessory (no Dock icon)
+  AppState.swift            Observable app state (search, downloads, settings)
   Models/
-    Track.swift             SCTrack + api-v2 wire decoding
+    Track.swift             Track + yt-dlp JSON decoding
     Settings.swift          AppSettings (persisted) + AudioFormat
     DownloadItem.swift       Per-download progress/status
   Services/
-    SoundCloudClient.swift   client_id discovery + v2 search (actor)
+    YouTubeClient.swift      YouTube search via yt-dlp ytsearch
     Downloader.swift         yt-dlp → ffmpeg → tag → move pipeline
     ProcessRunner.swift      async subprocess runner with line streaming
     ToolLocator.swift        finds yt-dlp / ffmpeg / brew
-    Keychain.swift           stores the SoundCloud Go+ OAuth token
   Views/
     RootView.swift           header + screen switching
     SearchView.swift         search bar, results, setup notice
     DownloadsStrip.swift     active/recent downloads list
-    SettingsView.swift       folder, format, auth, tools
+    SettingsView.swift       folder, format, tools
 Scripts/
-  build-app.sh              Packages the binary into Cratebar.app
+  build-app.sh              Packages the binary into Tubecrate.app
 ```
 
 ---
@@ -197,19 +169,17 @@ Scripts/
 
 | Symptom | Fix |
 |---|---|
-| Menu bar icon doesn't appear | Make sure the build succeeded; relaunch with `open build/Cratebar.app`. |
-| "No tracks found" / search errors | SoundCloud may have rotated its asset bundles; the client_id auto-refreshes on a 401. Try again. |
+| Menu bar icon doesn't appear | Make sure the build succeeded; relaunch with `open build/Tubecrate.app`. |
+| "No tracks found" / search errors | YouTube changes often — update yt-dlp (`brew upgrade yt-dlp`) and try again. |
 | Downloads fail immediately | Check Settings — `yt-dlp` and `ffmpeg` must both be green. |
-| HQ not kicking in | Confirm Go+ shows **Connected ✓**; paste a fresh `oauth_token` if it expired. |
-| First Keychain save shows a prompt | Expected for an unsigned app — click **Allow**. |
-| "app can't be opened" (Gatekeeper) | The bundle is ad-hoc signed. Right-click → **Open**, or `xattr -dr com.apple.quarantine build/Cratebar.app`. |
+| "app can't be opened" (Gatekeeper) | The bundle is ad-hoc signed. Right-click → **Open**, or `xattr -dr com.apple.quarantine build/Tubecrate.app`. |
 
 ---
 
 ## Legal & ethics
 
-Cratebar is a personal tool. **Only download tracks you have the right to
-download.** Respect [SoundCloud's Terms of Service](https://soundcloud.com/terms-of-use)
+Tubecrate is a personal tool. **Only download tracks you have the right to
+download.** Respect [YouTube's Terms of Service](https://www.youtube.com/t/terms)
 and the rights of artists and rightsholders. The author accepts no liability for
 misuse.
 

@@ -28,7 +28,7 @@ struct RootView: View {
         HStack(spacing: 8) {
             Image(systemName: "music.note")
                 .foregroundStyle(.orange)
-            Text("Cratebar")
+            Text("Tubecrate")
                 .font(.headline)
             if !state.tools.allInstalled {
                 Image(systemName: "exclamationmark.triangle.fill")
@@ -50,7 +50,7 @@ struct RootView: View {
                 Image(systemName: "power")
             }
             .buttonStyle(.borderless)
-            .help("Quit Cratebar")
+            .help("Quit Tubecrate")
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 10)

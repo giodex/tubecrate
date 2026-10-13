@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Build Cratebar and wrap it into a proper macOS .app bundle (menu-bar only).
+# Build Tubecrate and wrap it into a proper macOS .app bundle (menu-bar only).
 # Usage: ./Scripts/build-app.sh [--debug]
 #
 set -euo pipefail
@@ -14,7 +14,7 @@ if [[ "${1:-}" == "--debug" ]]; then
   SWIFT_FLAGS=""
 fi
 
-APP_NAME="Cratebar"
+APP_NAME="Tubecrate"
 APP_DIR="build/${APP_NAME}.app"
 MACOS_DIR="${APP_DIR}/Contents/MacOS"
 RES_DIR="${APP_DIR}/Contents/Resources"
@@ -35,13 +35,13 @@ cat > "${APP_DIR}/Contents/Info.plist" <<'PLIST'
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-  <key>CFBundleName</key>            <string>Cratebar</string>
-  <key>CFBundleDisplayName</key>     <string>Cratebar</string>
-  <key>CFBundleIdentifier</key>      <string>com.jackpatterson.cratebar</string>
+  <key>CFBundleName</key>            <string>Tubecrate</string>
+  <key>CFBundleDisplayName</key>     <string>Tubecrate</string>
+  <key>CFBundleIdentifier</key>      <string>com.giodex.tubecrate</string>
   <key>CFBundleVersion</key>         <string>1.0</string>
   <key>CFBundleShortVersionString</key><string>1.0</string>
   <key>CFBundlePackageType</key>     <string>APPL</string>
-  <key>CFBundleExecutable</key>      <string>Cratebar</string>
+  <key>CFBundleExecutable</key>      <string>Tubecrate</string>
   <key>LSMinimumSystemVersion</key>  <string>14.0</string>
   <key>LSUIElement</key>             <true/>
   <key>NSHighResolutionCapable</key> <true/>
