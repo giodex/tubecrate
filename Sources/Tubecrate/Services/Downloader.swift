@@ -57,6 +57,9 @@ struct Downloader {
             "-S", "abr,asr,quality",
             "--write-thumbnail",
             "--convert-thumbnails", "jpg",
+            // Thumbnail conversion runs ffmpeg inside yt-dlp; apps launched from
+            // Finder have no Homebrew PATH, so point yt-dlp at our ffmpeg.
+            "--ffmpeg-location", ffmpegPath,
             "-o", template,
             track.url,
         ]
